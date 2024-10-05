@@ -6,6 +6,7 @@ import 'glucose/glucose_chart1_weekly.dart';
 import 'glucose/glucose_chart_daily.dart';
 import 'list_by_date/blood_pressure_bar_chart.dart';
 import 'list_by_date/blood_pressure_chart_weekly.dart';
+import 'ocr/my_home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData.light(),
       debugShowCheckedModeBanner: false,
-      home: Scaffold(body: Center(child: BarChartSample1())),
+      home: const MyHomePage(title: 'OCR Screen'),
     );
   }
 }
