@@ -10,12 +10,12 @@ class User with _$User {
     String? name,
     String? email,
     required String number,
-    @JsonKey(name: 'register_at') String? registerAt,
-    String? photo,
+    required String? registerAt,
+    required String? photo,
     required String role,
-    @JsonKey(name: 'email_verified_at') String? emailVerifiedAt,
-    @JsonKey(name: 'created_at') required String createdAt,
-    @JsonKey(name: 'updated_at') required String updatedAt,
+    required String? emailVerifiedAt,
+    required String createdAt,
+    required String updatedAt,
   }) = _User;
 
   // Factory for JSON deserialization

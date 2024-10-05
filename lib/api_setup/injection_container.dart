@@ -12,9 +12,10 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<Dio>(
     Dio(
       BaseOptions(
-          baseUrl: baseUrl,
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 10)),
+        baseUrl: baseUrl,
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 10),
+      ),
     ),
   );
 

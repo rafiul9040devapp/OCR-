@@ -48,7 +48,7 @@ class AuthApiService {
           options: Options(
             extra: {'requiresAuth': false},
           ),
-          data: {"number": phoneNumber});
+          data: {"number": phoneNumber},);
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.data);
         if (responseData['status'] == 1) {
@@ -125,8 +125,7 @@ class AuthApiService {
     }
   }
 
-  Future<Either<ApiException, String>> updateUserProfile(
-      UpdatedUserProfile userProfile) async {
+  Future<Either<ApiException, String>> updateUserProfile(UpdatedUserProfile userProfile) async {
     try {
       final response = await _dio.post(
         profileUpdateEndPoint,
@@ -185,8 +184,35 @@ class AuthApiService {
     }
   }
 
-  Future<Either<ApiException, String>> loginUser(
-      int phoneNumber, String password) async {
+  Future<Either<ApiException,String>> forgotPasswordOtp(int phoneNumber) async {
+    try{
+      final response = await _dio.post(passwordResetOTPEndPoint,
+          options: Options(
+            extra: {'requiresAuth': false},
+          ),
+          data: {'number': phoneNumber}
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.data);
+        if (responseData['status'] == 1) {
+          _userIdStorage.saveUserID(responseData['user_id']);
+          return Right(responseData['message']);
+        } else {
+          return Left(ApiException(responseData['message']));
+        }
+      } else {
+        return Left(ApiException.fromStatusCode(response.statusCode ?? 0));
+      }
+
+    }on DioException catch (e) {
+      return Left(ApiException.fromDioError(e));
+    } catch (e) {
+      return Left(ApiException(e.toString()));
+    }
+  }
+
+  Future<Either<ApiException, User>> loginUser(int phoneNumber, String password) async {
     try {
       final response = await _dio.post(
         loginEndPoint,
@@ -201,10 +227,14 @@ class AuthApiService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.data);
         if (responseData['status'] == 1) {
+          User data = User.fromJson(responseData['data']);
           _tokenStorage.saveToken(responseData['token']);
-          return Right(responseData['message']);
-        } else {
+          _userIdStorage.saveUserID(data.id);
+          return Right(data);
+        } else if(responseData['status'] == 0){
           return Left(ApiException(responseData['message']));
+        }else {
+          return Left(ApiException('Invalid Response'));
         }
       } else {
         return Left(ApiException.fromStatusCode(response.statusCode ?? 0));
@@ -215,4 +245,5 @@ class AuthApiService {
       return Left(ApiException(e.toString()));
     }
   }
+
 }

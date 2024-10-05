@@ -8,3 +8,5 @@ const String resendOTPEndPoint = 'resend/otp';
 const String profileUpdateEndPoint = 'profile/update';
 const String logoutEndPoint = '/logout';
 const String loginEndPoint = '/login';
+
+const String passwordResetOTPEndPoint = '/password/reset/otp';
