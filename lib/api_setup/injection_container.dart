@@ -1,3 +1,4 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ocr_medical_department/api_setup/auth_api_service.dart';
@@ -9,6 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
+  sl.registerSingleton<DeviceInfoPlugin>(DeviceInfoPlugin());
+
   sl.registerSingleton<Dio>(
     Dio(
       BaseOptions(

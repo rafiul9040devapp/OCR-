@@ -1,8 +1,11 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
+import '../info/device_info.dart';
+import '../notification/notification_controller.dart';
 import 'helper.dart';
 
 
@@ -10,6 +13,7 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
   final String title;
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -111,10 +115,20 @@ class _MyHomePageState extends State<MyHomePage> {
     "Interventional Radiology"
   ];
 
+  String? deviceType = 'Loading....';
+
   @override
   void initState() {
+    /// Only after at least the action method is set, the notification events are delivered
+    AwesomeNotifications().setListeners(
+        onActionReceivedMethod:         NotificationController.onActionReceivedMethod,
+        onNotificationCreatedMethod:    NotificationController.onNotificationCreatedMethod,
+        onNotificationDisplayedMethod:  NotificationController.onNotificationDisplayedMethod,
+        onDismissActionReceivedMethod:  NotificationController.onDismissActionReceivedMethod
+    );
     super.initState();
     medicalDepartments.sort((a, b) => a.compareTo(b));
+    _getDeviceType();
   }
 
   Future<void> _captureAndExtractText(ImageSource source) async {
@@ -270,20 +284,52 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Future<void> _getDeviceType() async{
+    Map<String, String> deviceDetails = await getDeviceDetails();
+    String? type = deviceDetails['device_type'] ?? '';
+   String? id =  deviceDetails['device_id'] ?? '';
+    // Update state when device details are fetched
+    setState(() {
+      deviceType = '$type  \n $id';
+    });
+   print('$deviceType');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text(deviceType ?? 'Nothing Is Found',maxLines: 3,),
         centerTitle: true,
       ),
       body: _buildUI(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showImageSourceDialog,
-        tooltip: 'Image Source',
-        child: const Icon(Icons.add),
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            onPressed: _showImageSourceDialog,
+            tooltip: 'Image Source',
+            child: const Icon(Icons.add),
+          ),
+          const SizedBox(width: 32),
+          FloatingActionButton(
+            onPressed: (){
+              AwesomeNotifications().createNotification(
+                  content: NotificationContent(
+                    id: 10,
+                    channelKey: 'basic_channel',
+                    actionType: ActionType.Default,
+                    title: 'Hello World!',
+                    body: 'This is my first notification!',
+                  ),
+              );
+            },
+            tooltip: 'Notification',
+            child: const Icon(Icons.notifications_active),
+          ),
+        ],
       ),
     );
   }
